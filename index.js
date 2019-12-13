@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cors = require("cors");
 const Sse = require("json-sse");
 const Message = require("./message/model");
 const messageRouterFactory = require("./message/router");
@@ -9,6 +10,9 @@ const port = 4000;
 
 const stream = new Sse();
 const messageRouter = messageRouterFactory(stream);
+
+const corsMiddleware = cors();
+app.use(corsMiddleware);
 
 app.get("/", (request, response) => {
   stream.send("hi");
