@@ -2,12 +2,13 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const Sse = require("json-sse");
 const Message = require("./message/model");
-const messageRouter = require("./message/router");
+const messageRouterFactory = require("./message/router");
 
 const app = express();
 const port = 4000;
 
 const stream = new Sse();
+const messageRouter = messageRouterFactory(stream);
 
 app.get("/", (request, response) => {
   stream.send("hi");
@@ -16,10 +17,12 @@ app.get("/", (request, response) => {
 
 app.get("/stream", async (request, response, next) => {
   try {
-    const messages = await Message.findAll();
-    stream.init(request, response);
+    const messages = await Message.findAll(); // get array out of database
+    const string = JSON.stringify(messages); // convert array into string - serialize it
+    stream.updateInit(string); // prepare string to be sent to the client right after they connect
+    stream.init(request, response); // connect the user to the strem
   } catch (error) {
-    next(error);
+    next(error); // handle any errors
   }
 });
 

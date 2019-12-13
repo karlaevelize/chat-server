@@ -1,6 +1,6 @@
-const { Router } = require("express");
+const express = require("express");
 const Message = require("./model");
-const router = new Router();
+const { Router } = express;
 
 // router.get("/messages", (request, response, next) => {
 //   Message.findAll()
@@ -14,22 +14,29 @@ const router = new Router();
 //     .catch(errors => next(errors));
 // });
 
-router.get("/message", async (request, response, next) => {
-  try {
-    const messages = await Message.findAll();
-    response.send(messages);
-  } catch (error) {
-    next(error);
-  }
-});
+function factory(stream) {
+  const router = new Router();
 
-router.post("/message", async (request, response, next) => {
-  try {
-    const message = await Message.create(request.body);
-    response.send(message);
-  } catch (error) {
-    next(error);
-  }
-});
+  router.get("/message", async (request, response, next) => {
+    try {
+      const messages = await Message.findAll();
+      response.send(messages);
+    } catch (error) {
+      next(error);
+    }
+  });
 
-module.exports = router;
+  router.post("/message", async (request, response, next) => {
+    try {
+      const message = await Message.create(request.body);
+      const string = JSON.stringify(message);
+      stream.send(string);
+      response.send(message);
+    } catch (error) {
+      next(error);
+    }
+  });
+  return router;
+}
+
+module.exports = factory;
