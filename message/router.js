@@ -8,4 +8,10 @@ router.get("/messages", (request, response, next) => {
     .catch(errors => next(errors));
 });
 
+router.post("/messages", (request, response, next) => {
+  Message.create(request.body)
+    .then(message => response.send(message))
+    .catch(errors => next(errors));
+});
+
 module.exports = router;
