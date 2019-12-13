@@ -15,14 +15,17 @@ const corsMiddleware = cors();
 app.use(corsMiddleware);
 
 app.get("/", (request, response) => {
-  stream.send("hi");
   response.send("hello");
 });
 
 app.get("/stream", async (request, response, next) => {
   try {
     const messages = await Message.findAll(); // get array out of database
-    const string = JSON.stringify(messages); // convert array into string - serialize it
+    const action = {
+      type: "ALL_MESSAGES",
+      payload: messages
+    };
+    const string = JSON.stringify(action); // convert array into string - serialize it
     stream.updateInit(string); // prepare string to be sent to the client right after they connect
     stream.init(request, response); // connect the user to the strem
   } catch (error) {
